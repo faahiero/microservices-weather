@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-
 builder.Services.AddDbContext<PrecipDbContext>(opts =>
 {
     opts.EnableSensitiveDataLogging()
@@ -29,6 +27,13 @@ app.MapGet("/observation/{zip}", async(string zip, [FromQuery] int? days, Precip
     
     return Results.Ok(results);
 
+});
+
+app.MapPost("/observation", async (Precipitation precipitation, PrecipDbContext dbcontext) =>
+{
+    precipitation.CreatedOn = precipitation.CreatedOn.ToUniversalTime();
+    await dbcontext.AddAsync(precipitation);
+    await dbcontext.SaveChangesAsync();
 });
 
 app.Run();
